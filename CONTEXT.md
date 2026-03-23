@@ -145,6 +145,7 @@ PTC Creo via J-Link (existing license available) · Multi-LOD · Glacier archiva
 | File | Purpose |
 |---|---|
 | `docs/ideation/ideation.md` | Original product idea and requirements |
+| `docs/ideation/architecture_diagrams.md` | **Visual Flow & Architecture** (Stakeholder Mermaid Diagrams) |
 | `docs/ideation/implementation_plan_v4.md` | **Current authoritative implementation plan** (Decoupled viewer, CDN caching, Agent workflows) |
 | `docs/ideation/tasks_v4.md` | **Current authoritative task breakdown** (Multi-agent tracking mapped, Epics 1-14) |
 | `docs/ideation/implementation_plan_v3.md` | Superseded by v4 |

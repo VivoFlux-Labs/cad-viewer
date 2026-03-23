@@ -76,7 +76,7 @@ Tasks are organized by Phase, then Epic. Each task is independently pickable wit
 
 ---
 
-### Task 2.1 — Base 3D Canvas, Lighting & Camera Controls
+### [x] Task 2.1 — Base 3D Canvas, Lighting & Camera Controls
 - **Context**: Set up React Three Fiber `<Canvas>`, HDRI environment lighting (use a royalty-free HDRI from Polyhaven as default), and `OrbitControls` with strict limits (min/max polar angle to prevent camera clipping through geometry, min/max zoom distance). Expose camera preset props (`top`, `front`, `isometric`) that animate to the target position.
 - **Dependencies**: Task 1.1
 - **Testing**:
@@ -86,7 +86,7 @@ Tasks are organized by Phase, then Epic. Each task is independently pickable wit
 
 ---
 
-### Task 2.2 — GLB/GLTF Asset Loader, Model Optimization & Progressive Loading
+### [x] Task 2.2 — GLB/GLTF Asset Loader, Model Optimization & Progressive Loading
 - **Context**: Implement `useGLTF` with React `<Suspense>` for progressive loading. Add a loading spinner/skeleton while the model streams. Implement graceful error boundary for WebGL context loss. Add support for **Draco-compressed** and **meshopt-compressed** GLB files. At model upload time, run `gltf-transform` to apply Draco compression.
 - **Dependencies**: Task 2.1, Task 1.4
 - **Testing**:

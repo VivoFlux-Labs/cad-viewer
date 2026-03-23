@@ -1,1 +1,2 @@
-export const Viewer = () => console.log('viewer');
+export * from './components/ViewerCanvas';
+export * from './components/ViewerLoader';
