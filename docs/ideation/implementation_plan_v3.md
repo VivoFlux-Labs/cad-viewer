@@ -13,6 +13,22 @@ To successfully execute this phased rollout, we must pre-emptively address the t
 
 ---
 
+## 🔒 Security Notes & Guardrails
+
+These are non-negotiable constraints. Any implementation suggestion that contradicts these must be rejected.
+
+1. **RLS Requires PgBouncer in Session Mode**: PostgreSQL RLS is strong but not infallible. Connection pooling must be configured in **session mode** (`pool_mode=session` in PgBouncer). Transaction mode strips the session context and silently bypasses RLS — tenant isolation breaks without any error. This is an infrastructure-level requirement, not an application-level one.
+
+2. **Plugin Auth Option A (API Key + CORS) Is Browser-Only**: CORS header validation is enforced by browsers only. Any server-to-server request ignores the `Origin` header entirely, making Option A ineffective against backend scraping of proprietary model data. Option A is acceptable only for low-sensitivity demos. **Option B (Signed URLs / temporary tokens) is the required default** for any production plugin integration involving proprietary models.
+
+3. **Quota Enforcement Must Live at the Orchestrator Middleware Layer**: Quotas must not be enforced via database constraints or application-level if-checks. These layers are bypassable. Redis counters at the Orchestrator middleware layer provide `O(1)` enforcement before any CAD job is ever queued.
+
+4. **Redis Quota Counters Are Volatile**: Redis is in-memory and can crash. To protect billing integrity, a background cron job flushes Redis quota counters to PostgreSQL `tenant_billing` table every 5 minutes (Task 9.5 — Eventual Consistency Sync). At worst, 5 minutes of telemetry is lost on a Redis crash. The primary fast path is never slowed down.
+
+5. **"Mathematically Absolute" Isolation Is an Overstatement**: RLS provides strong tenant isolation at the DB engine level, but it is only as strong as the connection pooling configuration around it. Do not use absolute language in documentation or marketing.
+
+---
+
 ## Design Philosophy
 Build the minimum slice that proves the core value proposition — **a user can view a 3D model and configure it via parametric inputs while the backend generates the result asynchronously** — before expanding to multi-tenancy, billing, enterprise CAD engines, or admin tooling.
 

@@ -109,6 +109,9 @@ UI POST /configure
 ### Quota Enforcement
 Enforced at **Orchestrator middleware layer** (not DB constraints, not application logic). Redis counters hold current usage per tenant for sub-millisecond checks before any job is queued. Enforcing at the wrong layer creates bypassable limits.
 
+### Redis Quota Volatility — Eventual Consistency Sync
+Redis is in-memory and volatile. To protect billing integrity without slowing the fast path: Redis handles sub-millisecond quota decrements during request processing, and a background cron flushes those counters to PostgreSQL `tenant_billing` table every 5 minutes. At most 5 minutes of quota telemetry is lost on a Redis crash. (Task 9.5)
+
 ### Model Optimization
 Raw STEP/GLB files from CAD tools can be very large. Draco + meshopt compression is applied to every uploaded model via `gltf-transform` at upload time. The viewer loads compressed files only. LOD levels are a Phase 3 concern.
 
