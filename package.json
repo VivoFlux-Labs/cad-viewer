@@ -1,0 +1,37 @@
+{
+  "name": "cad-viewer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint"
+  },
+  "packageManager": "pnpm@9.0.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "services/*"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/urgobi/cad-viewer.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/urgobi/cad-viewer/issues"
+  },
+  "homepage": "https://github.com/urgobi/cad-viewer#readme",
+  "devDependencies": {
+    "eslint": "^10.1.0",
+    "prettier": "^3.8.1",
+    "turbo": "^2.8.20",
+    "typescript": "^5.9.3"
+  }
+}

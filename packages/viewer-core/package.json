@@ -1,0 +1,26 @@
+{
+  "name": "@cad-viewer/viewer-core",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint .",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "three": "^0.160.0",
+    "@react-three/fiber": "^8.15.12",
+    "@react-three/drei": "^9.96.1",
+    "zustand": "^4.5.0"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.48",
+    "@types/three": "^0.160.0",
+    "typescript": "^5.3.3"
+  }
+}
