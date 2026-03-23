@@ -137,8 +137,10 @@ PTC Creo via J-Link (existing license available) · Multi-LOD · Glacier archiva
 | File | Purpose |
 |---|---|
 | `docs/ideation/ideation.md` | Original product idea and requirements |
-| `docs/ideation/implementation_plan_v2.md` | Current authoritative implementation plan (phased) |
-| `docs/ideation/tasks_v2.md` | Current authoritative task breakdown (MVP + Phase 2 + Phase 3 epics) |
+| `docs/ideation/implementation_plan_v3.md` | Current authoritative implementation plan (phased) |
+| `docs/ideation/tasks_v3.md` | Current authoritative task breakdown (MVP + Phase 2 + Phase 3 epics) |
+| `docs/ideation/implementation_plan_v2.md` | Current authoritative implementation plan (phased) - superseded by v3 |
+| `docs/ideation/tasks_v2.md` | Current authoritative task breakdown (MVP + Phase 2 + Phase 3 epics) - superseded by v3 |
 | `docs/ideation/implementation_plan_draft.md` | Original draft — superseded by v2 |
 | `docs/ideation/task.md` | Original task draft — superseded by v2 |
 
