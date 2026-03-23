@@ -8,8 +8,9 @@
 | **Peer Reviewer Gamma** | Backend TDD / Opt | Peer Review Queue | Waiting for Dev Alpha | - |
 | **Peer Reviewer Delta** | Frontend TDD / Opt | Peer Review Queue | Waiting for Dev Beta | - |
 | **QA Agent Omega** | E2E Product Quality | Feedback Loop | Waiting for testable increments| - |
+| **Senior Architect Epsilon**| Independent Auditor | Unbiased Epic Review | Waiting for Epic 3 completion | - |
 | **Human Stakeholder** | Product Owner | Epic Review & Demo | Milestone Approval Loop | `main` |
-| **Doc Agent Sigma**| Tech Writer / Historian| Project Journey Blog | Documenting Sprint 1 Overview | `main` |
+| **Doc Agent Sigma**| Tech Writer / Historian| Project Journey Blog | Documenting Team Status | `main` |
 | **Code Reviewer** | Lead Architect | Code Review | Monitoring | `main` |
 
 ---
@@ -119,7 +120,7 @@ Tasks are organized by Phase, then Epic. Each task is independently pickable wit
 
 ---
 
-### Task 3.1 — Deterministic Hashing & Redis Cache
+### [x] Task 3.1 — Deterministic Hashing & Redis Cache
 - **Context**: Implement tenant-scoped hashing: `SHA-256(tenant_id + sorted(json.dumps(config_payload)))`. On cache hit, return URL immediately with HTTP `200`. Store cache entries as `hash -> model_url` in Redis. Include `ENABLE_GLOBAL_CACHING=false` toggle to disable Redis entirely.
 - **Dependencies**: Task 1.1
 - **Testing**:
@@ -138,7 +139,7 @@ Tasks are organized by Phase, then Epic. Each task is independently pickable wit
 
 ---
 
-### Task 3.3 — Message Queue Setup (RabbitMQ/Celery) & Multi-Engine Routing
+### [x] Task 3.3 — Message Queue Setup (RabbitMQ/Celery) & Multi-Engine Routing
 - **Context**: On a cache miss, the Orchestrator dispatches a `CAD_GENERATE` job to the appropriate Celery queue based on `engine` (`freecad` or `creo`). Return HTTP `202 Accepted` immediately with a `jobId`.
 - **Dependencies**: Task 3.2
 - **Testing**:
