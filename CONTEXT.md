@@ -101,6 +101,14 @@ UI POST /configure
 ### Storage Abstraction
 `StorageProvider` interface (`upload`, `getUrl`, `delete`) — switching from LOCAL to S3 is a single env var change (`STORAGE_PROVIDER=local|s3`). Zero application code changes.
 
+### Decoupled 3D Viewer Component
+The `@viewer-core` React component is entirely decoupled from the SaaS Configurator logic. It receives a declarative `modelUrl` prop and simply renders the `.glb`. The Configurator UI is treated purely as an extended overlay wrapped around the standalone Viewer. This ensures users can rapidly browse pre-generated models without blocking on the async generation queue.
+
+### Static Asset Delivery, Caching, & Tenant Isolation
+The FastAPI Backend **never serves `.glb` binaries**. That is a blocking anti-pattern. 
+- **MVP (Phase 1)**: The API `GET /api/models/{id}` returns paths to a local `StaticFiles` volume mount `/storage/models/...` (fast localized IO).
+- **SaaS (Phase 2)**: The API generates **Signed URLs** directly pointing to an AWS CloudFront CDN. The CDN provides aggressive edge-caching for O(1) Viewer load times, while the cryptographically signed URLs strictly enforce Tenant Isolation and prevent unauthorized scraping.
+
 ### Database & RLS
 - All SQL in repo under `db/`, version-controlled via Alembic
 - `tenant_id` columns present from Day 1 (MVP is single-tenant but schema is ready)
