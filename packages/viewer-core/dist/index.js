@@ -17,4 +17,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./components/ViewerCanvas"), exports);
 __exportStar(require("./components/ViewerLoader"), exports);
 __exportStar(require("./components/ConfiguratorPanel"), exports);
+__exportStar(require("./components/ViewerToolbar"), exports);
+__exportStar(require("./components/ViewerBOM"), exports);
 __exportStar(require("./store/configuratorStore"), exports);
+__exportStar(require("./store/viewerStore"), exports);
