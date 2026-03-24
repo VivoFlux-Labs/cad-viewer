@@ -23,6 +23,15 @@ importers:
 
   apps/saas-portal:
     dependencies:
+      '@cad-viewer/viewer-core':
+        specifier: workspace:*
+        version: link:../../packages/viewer-core
+      '@react-three/drei':
+        specifier: ^9.96.1
+        version: 9.122.0(@react-three/fiber@8.18.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.160.1))(@types/react@18.3.28)(@types/three@0.160.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.160.1)(use-sync-external-store@1.6.0(react@18.3.1))
+      '@react-three/fiber':
+        specifier: ^8.15.12
+        version: 8.18.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.160.1)
       '@tailwindcss/typography':
         specifier: ^0.5.19
         version: 0.5.19(tailwindcss@3.4.19)
@@ -44,6 +53,12 @@ importers:
       remark-gfm:
         specifier: ^4.0.1
         version: 4.0.1
+      three:
+        specifier: ^0.160.0
+        version: 0.160.1
+      zustand:
+        specifier: ^4.5.0
+        version: 4.5.7(@types/react@18.3.28)(react@18.3.1)
     devDependencies:
       '@types/node':
         specifier: ^20
