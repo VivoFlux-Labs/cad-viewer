@@ -64,18 +64,30 @@ function HumanScale() {
 function ViewerCanvas({ children, cameraPosition = [15, 15, 15], }) {
     // Bind directly to global viewer state
     const { environment, showGround, backgroundColor, resetTrigger } = (0, viewerStore_1.useViewerStore)();
-    return (react_1.default.createElement("div", { className: "relative w-full h-full" },
+    return (react_1.default.createElement("div", { className: "relative w-full h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-800 via-gray-950 to-black overflow-hidden" },
         react_1.default.createElement(ViewerToolbar_1.ViewerToolbar, null),
         react_1.default.createElement(ViewerBOM_1.ViewerBOM, null),
-        react_1.default.createElement(fiber_1.Canvas, { shadows: true, gl: { localClippingEnabled: true }, camera: { position: cameraPosition, fov: 45 }, style: { width: '100%', height: '100%', display: 'block', background: backgroundColor } },
-            react_1.default.createElement(react_1.Suspense, { fallback: null },
-                react_1.default.createElement(drei_1.Environment, { preset: environment, background: false }),
-                react_1.default.createElement("ambientLight", { intensity: 0.5 }),
-                react_1.default.createElement("directionalLight", { position: [10, 10, 10], intensity: 1, castShadow: true }),
-                showGround && (react_1.default.createElement(drei_1.ContactShadows, { position: [0, -0.01, 0], opacity: 0.5, scale: 20, blur: 2.5, far: 4, color: "#000000" })),
-                react_1.default.createElement(drei_1.Bounds, { fit: true, clip: true, observe: true, margin: 1.2 },
-                    react_1.default.createElement(CameraResetter, { trigger: resetTrigger }),
-                    react_1.default.createElement(HumanScale, null),
-                    react_1.default.createElement("group", null, children)),
-                react_1.default.createElement(drei_1.OrbitControls, { makeDefault: true, minDistance: 1, maxDistance: 200, maxPolarAngle: Math.PI / 2 + 0.1 })))));
+        react_1.default.createElement("div", { style: {
+                position: 'absolute',
+                top: '120px', /* Clears the ViewerToolbar */
+                left: '0', /* Full width — ViewerBOM overlays on the right via z-index */
+                right: '0',
+                bottom: '0',
+                zIndex: 0
+            } },
+            react_1.default.createElement(fiber_1.Canvas, { shadows: true, gl: { localClippingEnabled: true, alpha: true, antialias: true }, camera: { position: cameraPosition, fov: 45 }, style: { width: '100%', height: '100%', display: 'block', background: 'transparent' } },
+                react_1.default.createElement(react_1.Suspense, { fallback: null },
+                    react_1.default.createElement(drei_1.Environment, { preset: environment, background: false }),
+                    react_1.default.createElement("ambientLight", { intensity: 0.6 }),
+                    react_1.default.createElement("directionalLight", { position: [10, 10, 10], intensity: 1.2, castShadow: true, "shadow-mapSize": [2048, 2048], "shadow-bias": -0.0001 }),
+                    showGround && (react_1.default.createElement("group", null,
+                        react_1.default.createElement("mesh", { rotation: [-Math.PI / 2, 0, 0], receiveShadow: true, position: [0, -0.01, 0] },
+                            react_1.default.createElement("planeGeometry", { args: [100, 100] }),
+                            react_1.default.createElement("meshStandardMaterial", { attach: "material", color: "#111111", depthWrite: false, transparent: true, opacity: 0.4 })),
+                        react_1.default.createElement(drei_1.ContactShadows, { resolution: 1024, scale: 20, blur: 2.5, opacity: 0.8, far: 10, color: "#000000", position: [0, 0, 0] }))),
+                    react_1.default.createElement(drei_1.Bounds, { fit: true, clip: true, observe: true, margin: 1.2 },
+                        react_1.default.createElement(CameraResetter, { trigger: resetTrigger }),
+                        react_1.default.createElement(HumanScale, null),
+                        react_1.default.createElement("group", null, children)),
+                    react_1.default.createElement(drei_1.OrbitControls, { makeDefault: true, enableDamping: true, enablePan: false, dampingFactor: 0.05, minDistance: 0.1, maxDistance: 200, maxPolarAngle: Math.PI / 1.8 }))))));
 }

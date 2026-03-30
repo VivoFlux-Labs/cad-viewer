@@ -37,7 +37,7 @@ export default function BlogPage() {
       {/* Header Panel */}
       <div className="bg-gray-900 border-b border-gray-800 p-6 flex justify-between items-center shadow-md">
         <h1 className="text-2xl font-black tracking-tight text-white">
-          <span className="text-transparent bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text">Doc Sigma's</span> Presentation UI
+          <span className="text-transparent bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text">Doc Sigma&apos;s</span> Presentation UI
         </h1>
         <button 
           onClick={() => isEditing ? handleSave() : setIsEditing(true)}

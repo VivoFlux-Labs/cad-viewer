@@ -44,46 +44,72 @@ export function ViewerCanvas({
   const { environment, showGround, backgroundColor, resetTrigger } = useViewerStore();
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative w-full h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-800 via-gray-950 to-black overflow-hidden">
       {/* Universal Inspection Overlay UI */}
       <ViewerToolbar />
       <ViewerBOM />
 
-      {/* WebGL Render Target */}
-      <Canvas
-        shadows
-        gl={{ localClippingEnabled: true }}
-        camera={{ position: cameraPosition, fov: 45 }}
-        style={{ width: '100%', height: '100%', display: 'block', background: backgroundColor }}
+      {/* WebGL Render Target restricted to the 'Safe UI Zone' */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '120px',    /* Clears the ViewerToolbar */
+          left: '0',       /* Full width — ViewerBOM overlays on the right via z-index */
+          right: '0',
+          bottom: '0',
+          zIndex: 0
+        }}
       >
-        <Suspense fallback={null}>
-          {/* Dynamic Lighting corresponding to selected environment preset */}
-          <Environment preset={environment} background={false} />
-          
-          <ambientLight intensity={0.5} />
-          <directionalLight position={[10, 10, 10]} intensity={1} castShadow />
+        <Canvas
+          shadows
+          gl={{ localClippingEnabled: true, alpha: true, antialias: true }}
+          camera={{ position: cameraPosition, fov: 45 }}
+          style={{ width: '100%', height: '100%', display: 'block', background: 'transparent' }}
+        >
+          <Suspense fallback={null}>
+            {/* Dynamic Lighting corresponding to selected environment preset */}
+            <Environment preset={environment} background={false} />
+            
+            <ambientLight intensity={0.6} />
+            <directionalLight 
+              position={[10, 10, 10]} 
+              intensity={1.2} 
+              castShadow 
+              shadow-mapSize={[2048, 2048]} 
+              shadow-bias={-0.0001}
+            />
 
-          {/* Conditional Ground Plane for realistic shadow grounding */}
-          {showGround && (
-            <ContactShadows position={[0, -0.01, 0]} opacity={0.5} scale={20} blur={2.5} far={4} color="#000000" />
-          )}
+            {/* Conditional Ground Plane with Photorealistic Contact Shadows (Loop 2) */}
+            {showGround && (
+              <group>
+                <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow position={[0, -0.01, 0]}>
+                  <planeGeometry args={[100, 100]} />
+                  <meshStandardMaterial attach="material" color="#111111" depthWrite={false} transparent opacity={0.4} />
+                </mesh>
+                <ContactShadows resolution={1024} scale={20} blur={2.5} opacity={0.8} far={10} color="#000000" position={[0, 0, 0]} />
+              </group>
+            )}
 
-          {/* Bounds automatically frames the injected 3D model */}
-          <Bounds fit clip observe margin={1.2}>
-            <CameraResetter trigger={resetTrigger} />
-            <HumanScale />
-            <group>{children}</group>
-          </Bounds>
-          
-          {/* Strict OrbitControls with Deep Zoom capability Enabled (minDistance=1) */}
-          <OrbitControls 
-            makeDefault 
-            minDistance={1} 
-            maxDistance={200} 
-            maxPolarAngle={Math.PI / 2 + 0.1} 
-          />
-        </Suspense>
-      </Canvas>
+            {/* Damped Bounds framing - Native behavior restores pure geometry centering within the restricted Canvas */}
+            <Bounds fit clip observe margin={1.2}>
+              <CameraResetter trigger={resetTrigger} />
+              <HumanScale />
+              <group>{children}</group>
+            </Bounds>
+            
+            {/* Strict OrbitControls with Damping and Restrictive Panning Enabled */}
+            <OrbitControls 
+              makeDefault 
+              enableDamping 
+              enablePan={false}
+              dampingFactor={0.05} 
+              minDistance={0.1} 
+              maxDistance={200} 
+              maxPolarAngle={Math.PI / 1.8} 
+            />
+          </Suspense>
+        </Canvas>
+      </div>
     </div>
   );
 }

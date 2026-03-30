@@ -43,23 +43,37 @@ function ViewerLoader({ modelUrl, onLoad }) {
     // Clone the scene graph so we can deeply alter it without corrupting shared global references
     const clonedScene = (0, react_1.useMemo)(() => scene.clone(), [scene]);
     const { actions } = (0, drei_1.useAnimations)(animations, clonedScene);
-    const { wireframe, xray, clipPlaneEnabled, clipPlaneOffset, explodedOffset, playingAnimation, selectedMeshId, setSelectedMeshId, setSceneMeshes } = (0, viewerStore_1.useViewerStore)();
+    const { wireframe, xray, clipPlaneEnabled, clipPlaneOffset, explodedOffset, setExplodedOffset, playingAnimation, setPlayingAnimation, selectedMeshId, setSelectedMeshId, setSceneMeshes, triggerReset // Extracted for Iteration 2
+     } = (0, viewerStore_1.useViewerStore)();
+    // Handle Auto-framing on new model load (Architect Optimization 2)
     (0, react_1.useEffect)(() => {
-        if (clonedScene && onLoad)
-            onLoad();
-    }, [clonedScene, onLoad]);
-    // Extract Bill of Materials hierarchy
+        if (clonedScene) {
+            if (onLoad)
+                onLoad();
+            triggerReset(); // Forces the R3F `<Bounds>` to compute the bounding box of the newly injected model instead of trapping the camera.
+        }
+    }, [clonedScene, onLoad, triggerReset]);
+    // Extract Bill of Materials hierarchy and reset selection state when model swaps
     (0, react_1.useEffect)(() => {
         if (!clonedScene)
             return;
+        // Clear out stale UI selections
+        setSelectedMeshId(null);
+        setExplodedOffset(0);
+        setPlayingAnimation(false);
         const meshes = [];
         clonedScene.traverse((node) => {
             if (node.isMesh) {
                 meshes.push({ uuid: node.uuid, name: node.name });
             }
         });
-        setSceneMeshes(meshes);
-    }, [clonedScene, setSceneMeshes]);
+        // Performance Loop 4: Deep equality heuristic to intercept useless Zustand re-renders
+        viewerStore_1.useViewerStore.setState((prev) => {
+            if (prev.sceneMeshes.length === meshes.length)
+                return {};
+            return { sceneMeshes: meshes };
+        });
+    }, [clonedScene]);
     // Handle Animation Playback Sequences
     (0, react_1.useEffect)(() => {
         if (!actions)
@@ -131,8 +145,13 @@ function ViewerLoader({ modelUrl, onLoad }) {
                         }
                         else {
                             if (mat.emissive) {
-                                mat.emissive.copy(orig.emissive);
-                                mat.emissiveIntensity = orig.emissiveIntensity;
+                                if (orig.emissive) {
+                                    mat.emissive.copy(orig.emissive);
+                                }
+                                else {
+                                    mat.emissive.setHex(0x000000); // Fallback for HMR unpatched caches
+                                }
+                                mat.emissiveIntensity = orig.emissiveIntensity || 0;
                             }
                         }
                     }
@@ -148,6 +167,11 @@ function ViewerLoader({ modelUrl, onLoad }) {
         originalPositions: new Map(),
         explosionVectors: new Map()
     }));
+    // Automatic Memory Cleanup on Model Swap (Architect Optimization 1)
+    (0, react_1.useEffect)(() => {
+        explosionState.originalPositions.clear();
+        explosionState.explosionVectors.clear();
+    }, [clonedScene, explosionState]);
     (0, react_1.useEffect)(() => {
         if (!clonedScene)
             return;

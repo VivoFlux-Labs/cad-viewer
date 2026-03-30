@@ -11,8 +11,9 @@ export async function GET() {
   try {
     const content = fs.existsSync(BLOG_PATH) ? fs.readFileSync(BLOG_PATH, 'utf-8') : '# Blog missing in root folder.';
     return NextResponse.json({ content });
-  } catch (err: any) {
-    return NextResponse.json({ error: 'Failed to read blog: ' + err.message }, { status: 500 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    return NextResponse.json({ error: 'Failed to read blog: ' + message }, { status: 500 });
   }
 }
 
@@ -29,7 +30,8 @@ export async function POST(req: Request) {
     }
     
     return NextResponse.json({ success: true });
-  } catch (err: any) {
-    return NextResponse.json({ error: 'Failed to update blog: ' + err.message }, { status: 500 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    return NextResponse.json({ error: 'Failed to update blog: ' + message }, { status: 500 });
   }
 }

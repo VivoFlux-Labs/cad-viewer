@@ -19,26 +19,42 @@ export function ViewerLoader({ modelUrl, onLoad }: ViewerLoaderProps) {
   const { 
     wireframe, xray, 
     clipPlaneEnabled, clipPlaneOffset, 
-    explodedOffset, 
-    playingAnimation,
-    selectedMeshId, setSelectedMeshId, setSceneMeshes
+    explodedOffset,  setExplodedOffset,
+    playingAnimation, setPlayingAnimation,
+    selectedMeshId, setSelectedMeshId, setSceneMeshes,
+    triggerReset // Extracted for Iteration 2
   } = useViewerStore();
 
+  // Handle Auto-framing on new model load (Architect Optimization 2)
   useEffect(() => {
-    if (clonedScene && onLoad) onLoad();
-  }, [clonedScene, onLoad]);
+    if (clonedScene) {
+      if (onLoad) onLoad();
+      triggerReset(); // Forces the R3F `<Bounds>` to compute the bounding box of the newly injected model instead of trapping the camera.
+    }
+  }, [clonedScene, onLoad, triggerReset]);
 
-  // Extract Bill of Materials hierarchy
+  // Extract Bill of Materials hierarchy and reset selection state when model swaps
   useEffect(() => {
     if (!clonedScene) return;
+    
+    // Clear out stale UI selections
+    setSelectedMeshId(null);
+    setExplodedOffset(0);
+    setPlayingAnimation(false);
+    
     const meshes: { uuid: string; name: string }[] = [];
     clonedScene.traverse((node) => {
       if ((node as THREE.Mesh).isMesh) {
         meshes.push({ uuid: node.uuid, name: node.name });
       }
     });
-    setSceneMeshes(meshes);
-  }, [clonedScene, setSceneMeshes]);
+
+    // Performance Loop 4: Deep equality heuristic to intercept useless Zustand re-renders
+    useViewerStore.setState((prev) => {
+      if (prev.sceneMeshes.length === meshes.length) return {};
+      return { sceneMeshes: meshes };
+    });
+  }, [clonedScene]);
 
   // Handle Animation Playback Sequences
   useEffect(() => {
@@ -137,6 +153,12 @@ export function ViewerLoader({ modelUrl, onLoad }: ViewerLoaderProps) {
     originalPositions: new Map<string, THREE.Vector3>(),
     explosionVectors: new Map<string, THREE.Vector3>()
   }));
+
+  // Automatic Memory Cleanup on Model Swap (Architect Optimization 1)
+  useEffect(() => {
+    explosionState.originalPositions.clear();
+    explosionState.explosionVectors.clear();
+  }, [clonedScene, explosionState]);
 
   useEffect(() => {
     if (!clonedScene) return;

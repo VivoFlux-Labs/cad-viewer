@@ -14,8 +14,22 @@ const DEMO_SCHEMA: ConfigSchema = {
   material: { type: 'enum', label: 'Granite Finish', options: ['Polished', 'Matte', 'Raw'], default: 'Polished' }
 };
 
+// Assets are dynamically loaded from server endpoint API Route, mitigating tech debt locally
+
 export default function ViewerDemoPage() {
-  const [lastConfig, setLastConfig] = useState<Record<string, any>>({});
+  const [lastConfig, setLastConfig] = useState<Record<string, unknown>>({});
+  const [selectedModel, setSelectedModel] = useState<string>('');
+  const [availableModels, setAvailableModels] = useState<{id: string, name: string, url: string}[]>([]);
+
+  React.useEffect(() => {
+    fetch('/api/models')
+      .then(res => res.json())
+      .then(data => {
+        setAvailableModels(data.models);
+        if (data.models.length > 0) setSelectedModel(data.models[0].url);
+      })
+      .catch(err => console.error("Failed to fetch model catalog: ", err));
+  }, []);
 
   return (
     <div className="flex flex-col h-screen w-full bg-gray-950 text-white font-sans overflow-hidden">
@@ -25,6 +39,22 @@ export default function ViewerDemoPage() {
         <h1 className="font-bold tracking-wider text-indigo-100 flex items-center gap-3">
           SAAS CONFIGURATOR <span className="text-indigo-400 font-normal px-3 py-0.5 bg-indigo-900 rounded-full text-xs">LIVE 3D DEMO</span>
         </h1>
+        
+        {/* Dynamic Model Selection Framework */}
+        <div className="flex items-center gap-3">
+          <span className="text-[10px] font-bold uppercase text-indigo-300">Target Model:</span>
+          <select 
+            value={selectedModel}
+            onChange={(e) => setSelectedModel(e.target.value)}
+            className="bg-indigo-900 border border-indigo-700 text-xs text-indigo-100 rounded px-2 py-1 outline-none"
+            disabled={availableModels.length === 0}
+          >
+            {availableModels.map(m => (
+              <option key={m.id} value={m.url}>{m.name}</option>
+            ))}
+          </select>
+        </div>
+
         <div className="flex gap-4 items-center">
           <div className="text-xs bg-indigo-900 px-3 py-1 rounded text-indigo-200 border border-indigo-700 shadow-inner">
             React Three Fiber @viewer-core
@@ -39,8 +69,8 @@ export default function ViewerDemoPage() {
         {/* Main 3D Canvas Area */}
         <div className="flex-1 relative cursor-grab active:cursor-grabbing">
           {/* The WebGL Render tree */}
-          <ViewerCanvas cameraPosition={[3, 2, 3]} backgroundColor="#09090b">
-            <ViewerLoader modelUrl="/demo.glb" />
+          <ViewerCanvas cameraPosition={[3, 2, 3]}>
+            {selectedModel && <ViewerLoader modelUrl={selectedModel} />}
           </ViewerCanvas>
           
           {/* Debug State Box for Stakeholders to see the Zustand store reacting instantaneously */}
@@ -58,7 +88,7 @@ export default function ViewerDemoPage() {
         </div>
 
         {/* Configurator Overlay Sidebar */}
-        <div className="w-96 min-w-[384px] bg-gray-900 border-l border-gray-800 overflow-y-auto z-10 shadow-2xl flex flex-col">
+        <div className="w-96 min-w-[384px] bg-black/50 backdrop-blur-3xl border-l border-white/5 overflow-y-auto z-20 shadow-[-10px_0_30px_rgba(0,0,0,0.5)] flex flex-col relative">
           <div className="p-6 pb-0">
             <h2 className="text-xl font-bold text-white mb-2 tracking-tight">Granite Configurator</h2>
             <p className="text-sm text-gray-400 mb-6 leading-relaxed">Customize your 3D asset below. The UI is dynamically parsed from the JSON schema layout.</p>
@@ -71,8 +101,8 @@ export default function ViewerDemoPage() {
             className="border-none shadow-none rounded-none w-full bg-transparent p-6 pt-0"
           />
 
-          <div className="mt-auto p-6 bg-gray-950/50 border-t border-gray-800 text-xs text-gray-500 leading-relaxed space-y-3">
-            <p className="uppercase font-bold text-gray-400 tracking-wider text-[10px]">Architecture Note</p>
+          <div className="mt-auto p-6 bg-black/40 border-t border-white/10 text-xs text-gray-400 leading-relaxed space-y-3 shadow-inner">
+            <p className="uppercase font-bold text-gray-300 tracking-wider text-[10px]">Architecture Note</p>
             <p>The WebGL Canvas to the left is an entirely decoupled NPM package component (`@viewer-core`).</p>
             <p>The Sliders above are generated dynamically from an injected `ConfigSchema` JSON layout natively into the Next.js container.</p>
           </div>

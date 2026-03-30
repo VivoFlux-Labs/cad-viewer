@@ -22,7 +22,7 @@ export function ViewerToolbar() {
   ];
 
   return (
-    <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md border border-white/10 rounded-xl p-3 flex gap-6 z-50 text-white shadow-2xl font-sans divide-x divide-gray-800">
+    <div className="absolute top-6 left-1/2 transform -translate-x-1/2 w-max bg-black/40 backdrop-blur-3xl border border-white/10 rounded-2xl p-4 flex gap-6 z-50 text-white shadow-[0_8px_32px_rgba(0,0,0,0.5)] font-sans divide-x divide-white/10 outline outline-1 outline-white/5 transition-all hover:bg-black/50">
       
       {/* Lighting Context Suite */}
       <div className="flex flex-col gap-3 pr-2">
