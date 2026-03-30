@@ -5,6 +5,56 @@ import { useViewerStore } from '../store/viewerStore';
 import { ViewerToolbar } from './ViewerToolbar';
 import { ViewerBOM } from './ViewerBOM';
 
+// ─── Error Boundary ───────────────────────────────────────────────────────────
+interface ErrorBoundaryState { error: Error | null }
+
+class ViewerErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  ErrorBoundaryState
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { error: null };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { error };
+  }
+
+  override render() {
+    if (this.state.error) {
+      return (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-gray-950/80 z-10">
+          <div className="w-10 h-10 rounded-full bg-red-900/60 flex items-center justify-center">
+            <svg className="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+            </svg>
+          </div>
+          <p className="text-red-400 text-xs font-semibold uppercase tracking-widest">Failed to load model</p>
+          <p className="text-gray-500 text-[11px] max-w-xs text-center">{this.state.error.message}</p>
+          <button
+            className="mt-1 text-[11px] text-indigo-400 hover:text-indigo-300 underline underline-offset-2"
+            onClick={() => this.setState({ error: null })}
+          >
+            Retry
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+// ─── Loading Fallback ─────────────────────────────────────────────────────────
+function CanvasLoadingFallback() {
+  return (
+    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 pointer-events-none">
+      <div className="w-8 h-8 rounded-full border-2 border-indigo-500/30 border-t-indigo-400 animate-spin" />
+      <p className="text-indigo-300/60 text-[11px] uppercase tracking-widest font-semibold">Loading model…</p>
+    </div>
+  );
+}
+
 export interface ViewerCanvasProps {
   children?: React.ReactNode;
   cameraPosition?: [number, number, number];
@@ -50,6 +100,7 @@ export function ViewerCanvas({
       <ViewerBOM />
 
       {/* WebGL Render Target restricted to the 'Safe UI Zone' */}
+      <ViewerErrorBoundary>
       <div
         style={{
           position: 'absolute',
@@ -66,7 +117,7 @@ export function ViewerCanvas({
           camera={{ position: cameraPosition, fov: 45 }}
           style={{ width: '100%', height: '100%', display: 'block', background: 'transparent' }}
         >
-          <Suspense fallback={null}>
+          <Suspense fallback={<CanvasLoadingFallback />}>
             {/* Dynamic Lighting corresponding to selected environment preset */}
             <Environment preset={environment} background={false} />
             
@@ -110,6 +161,7 @@ export function ViewerCanvas({
           </Suspense>
         </Canvas>
       </div>
+      </ViewerErrorBoundary>
     </div>
   );
 }
