@@ -1,0 +1,161 @@
+import React from 'react';
+import { useViewerStore, EnvironmentPreset } from '../store/viewerStore';
+
+export function ViewerToolbar() {
+  const { 
+    environment, setEnvironment, 
+    showGround, setShowGround,
+    wireframe, setWireframe,
+    xray, setXray,
+    triggerReset,
+    clipPlaneEnabled, setClipPlaneEnabled,
+    clipPlaneOffset, setClipPlaneOffset,
+    explodedOffset, setExplodedOffset,
+    playingAnimation, setPlayingAnimation
+  } = useViewerStore();
+
+  const presets: { label: string; value: EnvironmentPreset }[] = [
+    { label: 'Studio', value: 'studio' },
+    { label: 'Workshop', value: 'warehouse' },
+    { label: 'Daylight', value: 'sunset' },
+    { label: 'Outdoor', value: 'park' }
+  ];
+
+  return (
+    <div className="absolute top-6 left-1/2 transform -translate-x-1/2 w-max bg-black/40 backdrop-blur-3xl border border-white/10 rounded-2xl p-4 flex gap-6 z-50 text-white shadow-[0_8px_32px_rgba(0,0,0,0.5)] font-sans divide-x divide-white/10 outline outline-1 outline-white/5 transition-all hover:bg-black/50">
+      
+      {/* Lighting Context Suite */}
+      <div className="flex flex-col gap-3 pr-2">
+        <div className="flex items-center gap-3">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 w-24">Environment</span>
+          <div className="flex gap-1 bg-black/40 p-1 rounded-lg border border-gray-800">
+            {presets.map(p => (
+              <button
+                key={p.value}
+                onClick={() => setEnvironment(p.value)}
+                className={`px-3 py-1.5 text-xs rounded-md transition-all font-medium ${
+                  environment === p.value 
+                  ? 'bg-blue-600 text-white shadow-lg' 
+                  : 'text-gray-400 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 w-24">Ground Plane</span>
+          <button
+            onClick={() => setShowGround(!showGround)}
+            className={`px-4 py-1.5 text-xs rounded-lg transition-all border font-bold ${
+              showGround 
+              ? 'bg-green-900/40 border-green-500/50 text-green-400 shadow-[0_0_10px_rgba(34,197,94,0.2)]' 
+              : 'bg-gray-800 border-gray-700 text-gray-400 hover:bg-gray-700'
+            }`}
+          >
+            {showGround ? 'ENABLED' : 'DISABLED'}
+          </button>
+        </div>
+      </div>
+
+      {/* Advanced Inspection Suite */}
+      <div className="flex flex-col gap-3 pl-6">
+        <div className="flex items-center gap-3">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-300 w-24">Render Mode</span>
+          <div className="flex gap-1 bg-black/40 p-1 rounded-lg border border-gray-800">
+            <button
+              onClick={() => { setWireframe(false); setXray(false); }}
+              className={`px-3 py-1.5 text-xs rounded-md transition-all font-medium ${!wireframe && !xray ? 'bg-indigo-600 text-white shadow' : 'text-gray-400 hover:text-white'}`}
+            >
+              Shaded
+            </button>
+            <button
+              onClick={() => setWireframe(true)}
+              className={`px-3 py-1.5 text-xs rounded-md transition-all font-medium ${wireframe ? 'bg-orange-600 text-white shadow' : 'text-gray-400 hover:text-white'}`}
+            >
+              Wireframe
+            </button>
+            <button
+              onClick={() => setXray(true)}
+              className={`px-3 py-1.5 text-xs rounded-md transition-all font-medium ${xray ? 'bg-cyan-600 text-white shadow' : 'text-gray-400 hover:text-white'}`}
+            >
+              X-Ray Ghost
+            </button>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-300 w-24">Camera</span>
+            <div className="flex gap-2">
+              <button
+                onClick={() => triggerReset()}
+                className="px-4 py-1.5 text-xs rounded-lg transition-all border border-indigo-700 bg-indigo-900/40 text-indigo-100 hover:bg-indigo-600 font-bold"
+              >
+                ⛶ FIT TO PRODUCT 
+              </button>
+              <button
+                onClick={() => useViewerStore.getState().setShowScale(!useViewerStore.getState().showScale)}
+                className={`px-4 py-1.5 text-xs rounded-lg transition-all border font-bold ${
+                  useViewerStore.getState().showScale 
+                  ? 'bg-blue-900/40 border-blue-500 text-blue-300' 
+                  : 'bg-gray-800 border-gray-700 text-gray-400 hover:bg-gray-700'
+                }`}
+              >
+                🧍 SCALE REF
+              </button>
+            </div>
+        </div>
+      </div>
+
+      {/* Assembly & Tooling Suite */}
+      <div className="flex flex-col gap-3 pl-6 w-72">
+        <div className="flex items-center gap-3 justify-between">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-orange-400">Exploded View</span>
+          <input 
+            type="range" 
+            min="0" max="100" step="1" 
+            value={explodedOffset} 
+            onChange={(e) => setExplodedOffset(parseFloat(e.target.value))}
+            className="w-32 accent-orange-500"
+          />
+        </div>
+        
+        <div className="flex items-center gap-3 justify-between">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input 
+              type="checkbox" 
+              checked={clipPlaneEnabled} 
+              onChange={(e) => setClipPlaneEnabled(e.target.checked)} 
+              className="accent-red-500 w-3 h-3"
+            />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-red-500">X-Axis Slice</span>
+          </label>
+          <input 
+            type="range" 
+            min="-50" max="50" step="1" 
+            value={clipPlaneOffset} 
+            onChange={(e) => setClipPlaneOffset(parseFloat(e.target.value))}
+            disabled={!clipPlaneEnabled}
+            className={`w-32 accent-red-500 ${!clipPlaneEnabled && 'opacity-30'}`}
+          />
+        </div>
+
+        <div className="flex items-center gap-3 justify-between pt-1 border-t border-gray-800">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-yellow-500">Sequences</span>
+          <button
+            onClick={() => setPlayingAnimation(!playingAnimation)}
+            className={`px-4 py-1.5 text-xs rounded-lg transition-all border font-bold ${
+              playingAnimation 
+              ? 'bg-yellow-900/40 border-yellow-500/50 text-yellow-400' 
+              : 'bg-gray-800 border-gray-700 text-gray-400 hover:bg-gray-700'
+            }`}
+          >
+            {playingAnimation ? '⏸ PAUSE' : '▶ PLAY'}
+          </button>
+        </div>
+      </div>
+      
+    </div>
+  );
+}

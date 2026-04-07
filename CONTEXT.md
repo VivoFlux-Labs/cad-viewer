@@ -101,6 +101,14 @@ UI POST /configure
 ### Storage Abstraction
 `StorageProvider` interface (`upload`, `getUrl`, `delete`) — switching from LOCAL to S3 is a single env var change (`STORAGE_PROVIDER=local|s3`). Zero application code changes.
 
+### Decoupled 3D Viewer Component
+The `@viewer-core` React component is entirely decoupled from the SaaS Configurator logic. It receives a declarative `modelUrl` prop and simply renders the `.glb`. The Configurator UI is treated purely as an extended overlay wrapped around the standalone Viewer. This ensures users can rapidly browse pre-generated models without blocking on the async generation queue.
+
+### Static Asset Delivery, Caching, & Tenant Isolation
+The FastAPI Backend **never serves `.glb` binaries**. That is a blocking anti-pattern. 
+- **MVP (Phase 1)**: The API `GET /api/models/{id}` returns paths to a local `StaticFiles` volume mount `/storage/models/...` (fast localized IO).
+- **SaaS (Phase 2)**: The API generates **Signed URLs** directly pointing to an AWS CloudFront CDN. The CDN provides aggressive edge-caching for O(1) Viewer load times, while the cryptographically signed URLs strictly enforce Tenant Isolation and prevent unauthorized scraping.
+
 ### Database & RLS
 - All SQL in repo under `db/`, version-controlled via Alembic
 - `tenant_id` columns present from Day 1 (MVP is single-tenant but schema is ready)
@@ -140,8 +148,11 @@ PTC Creo via J-Link (existing license available) · Multi-LOD · Glacier archiva
 | File | Purpose |
 |---|---|
 | `docs/ideation/ideation.md` | Original product idea and requirements |
-| `docs/ideation/implementation_plan_v3.md` | Current authoritative implementation plan (phased) |
-| `docs/ideation/tasks_v3.md` | Current authoritative task breakdown (MVP + Phase 2 + Phase 3 epics) |
+| `docs/ideation/architecture_diagrams.md` | **Visual Flow & Architecture** (Stakeholder Mermaid Diagrams) |
+| `docs/ideation/implementation_plan_v4.md` | **Current authoritative implementation plan** (Decoupled viewer, CDN caching, Agent workflows) |
+| `docs/ideation/tasks_v4.md` | **Current authoritative task breakdown** (Multi-agent tracking mapped, Epics 1-14) |
+| `docs/ideation/implementation_plan_v3.md` | Superseded by v4 |
+| `docs/ideation/tasks_v3.md` | Superseded by v4 |
 | `docs/ideation/implementation_plan_v2.md` | Current authoritative implementation plan (phased) - superseded by v3 |
 | `docs/ideation/tasks_v2.md` | Current authoritative task breakdown (MVP + Phase 2 + Phase 3 epics) - superseded by v3 |
 | `docs/ideation/implementation_plan_draft.md` | Original draft — superseded by v2 |
